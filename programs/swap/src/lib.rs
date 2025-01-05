@@ -15,7 +15,24 @@ declare_id!("C2ZHJdpPYFUBjB4ZZK4mEFPrJL6HZdMPfxnVtwEEdhPr");
 pub mod swap {
     use super::*;
 
-    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
-        initialize::handler(ctx)
+    pub fn make_offer(
+        ctx: Context<MakeOffer>,
+        id: u64,
+        amount_a_offered: u64,
+        token_b_amount_wanted: u64,
+    ) -> Result<()> {
+        instructions::make_offer::send_offered_token_to_vault(&ctx, amount_a_offered)?;
+
+        let offer = &mut ctx.accounts.offer;
+
+        offer.set_inner(Offer {
+            id,
+            maker: ctx.accounts.maker.key(),
+            token_mint_a: ctx.accounts.token_mint_a.key(),
+            token_mint_b: ctx.accounts.token_mint_b.key(),
+            token_b_amount_wanted,
+            bump: ctx.bumps.offer,
+        });
+        Ok(())
     }
 }
